@@ -5,6 +5,7 @@ import math
 def gen_graph(nodes,stable_chain_size, unstable_chain_size):
     res = []
     partition = []
+    print(stable_chain_size, unstable_chain_size)
     if unstable_chain_size:
         for i in range(0,unstable_chain_size*4,4):
             if i:
