@@ -1,0 +1,76 @@
+#!/usr/bin/python3
+from sys import argv
+import math
+
+def gen_graph(nodes,stable_chain_size, unstable_chain_size):
+    res = []
+    partition = []
+    if unstable_chain_size:
+        for i in range(0,unstable_chain_size*4,4):
+            if i:
+                s = i-4
+                res.append((s+1, i))
+                res.append((s+3, i+2))
+                res.append((i,s+1))
+                res.append((i+2,s+3))
+                partition.extend([0]*4)
+            else:
+                partition.extend([0,1,2,3])
+            res.append((i, i+1))
+            res.append((i+1, i))
+            res.append((i, i+2))
+            res.append((i+2, i))
+            res.append((i+1, i+3))
+            res.append((i+3, i+1))
+            res.append((i+2, i+3))
+            res.append((i+3, i+2))
+
+        s = (unstable_chain_size*4) -1
+        res.append((s, 2))
+        res.append((2, s))
+        res.append((s-2, 0))
+        res.append((0,s-2))
+
+    if stable_chain_size:
+        for i in range(unstable_chain_size*4,(unstable_chain_size*4)+(stable_chain_size*4),4):
+            if i > (unstable_chain_size*4):
+                s = i-4
+                res.append((s+1, i))
+                res.append((s+3, i+2))
+                res.append((i,s+1))
+                res.append((i+2,s+3))
+            res.append((i, i+1))
+            res.append((i+1, i))
+            res.append((i, i+2))
+            res.append((i+2, i))
+            res.append((i+1, i+3))
+            res.append((i+3, i+1))
+            res.append((i+2, i+3))
+            res.append((i+3, i+2))
+            partition.extend([unstable_chain_size*4]*4)
+
+        s = ((unstable_chain_size*4)+(stable_chain_size*4)) -1
+        res.append((s,(unstable_chain_size*4) + 2))
+        res.append(((unstable_chain_size*4) + 2, s))
+        res.append((s-2, (unstable_chain_size*4)))
+        res.append(((unstable_chain_size*4),s-2))
+
+    res.sort()
+    with open("graph.txt","w") as f:
+        f.write(f"{nodes}\n")
+        f.write(f"{len(res)}\n")
+        for e in res:
+            f.write(f"{e[0]} {e[1]}\n")
+
+    with open("partition.txt","w") as f:
+        for nb in partition:
+            f.write(f"{nb}\n")
+
+n = int(argv[1])
+if n %4:
+    raise Exception("Node number must be divisible by 4")
+ns  = int(n / 4)
+p = float(argv[2])
+nss = int(ns * p)
+nsu = int(ns - nss)
+gen_graph(n,nss, nsu)

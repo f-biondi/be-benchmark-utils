@@ -162,10 +162,17 @@ def transpose_data(data):
 
     return transposed_data
 
-if __name__ == '__main__':
-    test_compare_wl_benchmarks()
+# test_compare_wl_benchmarks()
+"""
+from datasets import Questions, Chameleon
+import torch_geometric.transforms as T
+data = Chameleon(root='./data/wikipedia_network/').get_data()
+prepartition = torch.zeros(data.num_nodes, dtype=torch.long)
+wl_infty = partition_refinement_WL(data, prepartition)
+print(data)
 
-            
+print(torch.unique(wl_infty).shape[0])            
+"""
 
         
 
