@@ -16,9 +16,11 @@ for r in result:
         f = open("res.txt", "r")
         l = f.read().split("\n")
         f.close()
+        print(r['name'], l[1], l[0])
         cur.execute("UPDATE results SET time = ?, result = ? where name= ?", (l[1], l[0], r['name']))
         con.commit()
         os.system("rm res.txt")
     except FileNotFoundError:
+        print(r['name'], "TIMEOUT")
         cur.execute("UPDATE results SET time = ?, result = ? where name= ?", (7200, r['nodes'], r['name']))
         con.commit()
