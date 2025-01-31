@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+import json
+from sys import argv
+from sys import stdin
+
+l = [] 
+
+if stdin:
+    l = json.loads(stdin.read())
+else:
+    with open(argv[1] if len(argv) > 1 else "res.txt","r") as f:
+        l = json.loads(f.read())
+
+s = set(l)
+print(len(s))
