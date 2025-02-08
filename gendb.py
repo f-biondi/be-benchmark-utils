@@ -5,7 +5,7 @@ os.system("rm sresult.db")
 con = sqlite3.connect("sresult.db")
 cur = con.cursor()
 
-cur.execute("CREATE TABLE IF NOT EXISTS results(name TEXT, nodes INT, p REAL, time REAL, result INT)")
+cur.execute("CREATE TABLE IF NOT EXISTS results(name TEXT, nodes INT, p REAL, degree INT,  time REAL, result INT)")
 
 dbs = {
         "S_100_Thousand_": 100000,
@@ -17,5 +17,6 @@ dbs = {
 
 for k,v in dbs.items():
     for p in [1, 0.75, 0.5, 0.25, 0]:
-        cur.execute("INSERT INTO results (name, nodes, p, time, result) VALUES (?,?,?,?,?)", (f"{k}{int(100*p)}", v, p, -1, -1))
-        con.commit()
+        for degree in [10, 100]:
+            cur.execute("INSERT INTO results (name, nodes, p, degree, time, result) VALUES (?,?,?,?,?,?)", (f"{k}{int(100*p)}_{degree}", v, p, degree, -1, -1))
+            con.commit()
