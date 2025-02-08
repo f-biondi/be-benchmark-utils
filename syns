@@ -1,83 +1,54 @@
 #!/usr/bin/python3
 from sys import argv
 import math
+import os
 
 class Graph:
-    def __init__(self, nodes, start=0):
-        self.edges = set()
-        self.start = start
+    def __init__(self, nodes, edges):
         self.nodes = nodes
-        self.partition = [start] * self.nodes  
+        self.edges = edges
+        self.f = open("temp.txt", "w")
 
     def add_directed_edge(self, start, end):
-        self.edges.add((start,end))
+        self.f.write(f"{start} {end}\n")
 
     def add_undirected_edge(self, start, end):
         self.add_directed_edge(start, end)
         self.add_directed_edge(end, start)
 
-    def set_partition_block(self, node, block): 
-        assert node < nodes
-        assert block < nodes
-        assert block == node or self.partition[block] == block
-        self.partition[node] = block
-
-    def get_node_index(self, node):
-        assert node < nodes
-        return self.start + node
-
     def save(self):
-        sorted_edges = sorted(list(self.edges))
-        with open("graph.txt","w") as f:
-            f.write(f"{self.nodes}\n")
-            f.write(f"{len(sorted_edges)}\n")
-            for e in sorted_edges:
-                f.write(f"{e[0]} {e[1]}\n")
-        with open("partition.txt","w") as f:
-            for nb in self.partition:
-                f.write(f"{nb}\n")
-
-class ChainGraph(Graph):
-    def __init__(self, chain_start, size):
-        super().__init__(nodes, start=chain_start)
-        for i in range(0, size*4, 4):
-            self.add_undirected_edge(self.get_node_index((i-3) % (size*4)), self.get_node_index(i))
-            self.add_undirected_edge(self.get_node_index((i-1) % (size*4)), self.get_node_index(i+2))
-            self.add_undirected_edge(self.get_node_index(i), self.get_node_index(i+1))
-            self.add_undirected_edge(self.get_node_index(i), self.get_node_index(i+2))
-            self.add_undirected_edge(self.get_node_index(i+1), self.get_node_index(i+3))
-            self.add_undirected_edge(self.get_node_index(i+2), self.get_node_index(i+3))
-
-class ChainIntraconnectedGraph(ChainGraph):
-    def __init__(self, chain_start, size, degree):
-        assert degree < size
-        super().__init__(chain_start, size)
-        self.degree = degree
-        for i in range(0, size*4,4):
-            for k in range(degree):
-                dest_chain_start = self.get_node_index((i + (k*4)) % (size*4))
-                self.add_undirected_edge(self.get_node_index((i-3) % (size*4)), dest_chain_start)
-                self.add_undirected_edge(self.get_node_index((i-1) % (size*4)), dest_chain_start+2)
-                self.add_undirected_edge(self.get_node_index(i), dest_chain_start+1)
-                self.add_undirected_edge(self.get_node_index(i), dest_chain_start+2)
-                self.add_undirected_edge(self.get_node_index(i+1), dest_chain_start+3)
-                self.add_undirected_edge(self.get_node_index(i+2), dest_chain_start+3)
+        self.f.close()
+        os.system(f"echo '{self.nodes}' > graph.txt")
+        os.system(f"echo '{self.edges}' >> graph.txt")
+        os.system("cat temp.txt | sort -S 80% -n | uniq >> graph.txt")
+        os.system("rm temp.txt")
+        #os.system("cat graph.txt | sort -n | uniq | > graph.txt")
 
 class SyntheticGraph(Graph):
     def __init__(self, nodes, stable_chain_size, unstable_chain_size, degree):
-        super().__init__(nodes)
+        super().__init__(nodes, nodes*3*degree)
         self.stable_chain_size = stable_chain_size
         self.unstable_chain_size = unstable_chain_size
         self.degree = degree
-        unstable_chain = ChainIntraconnectedGraph(0, unstable_chain_size, degree) if unstable_chain_size else Graph(0)
-        if unstable_chain_size:
-            unstable_chain.set_partition_block(1, 1)
-            unstable_chain.set_partition_block(2, 2)
-            unstable_chain.set_partition_block(3, 3)
-        stable_chain = ChainIntraconnectedGraph(unstable_chain_size * 4, stable_chain_size, degree) if stable_chain_size else Graph(0, start=unstable_chain_size*4)
+        unstable_chain = self.chain_intraconnected(0, unstable_chain_size, degree)
+        stable_chain = self.chain_intraconnected(unstable_chain_size * 4, stable_chain_size, degree)
 
-        self.edges = unstable_chain.edges.union(stable_chain.edges)
-        self.partition = unstable_chain.partition + stable_chain.partition
+        with open("partition.txt", "w") as f:
+            for i in range(unstable_chain_size * 4):
+                f.write(f"{i if i < 4 else 0}\n")
+            for _ in range(stable_chain_size * 4):
+                f.write(f"{unstable_chain_size * 4}\n")
+
+    def chain_intraconnected(self, start, size, degree):
+        for i in range(0, size*4,4):
+            for k in range(degree):
+                dest_chain_start = ((i + (k*4)) % (size*4)) + start
+                self.add_undirected_edge(((i-3) % (size*4)) + start, dest_chain_start)
+                self.add_undirected_edge(((i-1) % (size*4)) + start, dest_chain_start+2)
+                self.add_undirected_edge((i) + start, dest_chain_start+1)
+                self.add_undirected_edge((i) + start, dest_chain_start+2)
+                self.add_undirected_edge((i+1) + start, dest_chain_start+3)
+                self.add_undirected_edge((i+2) + start, dest_chain_start+3)
 
 if __name__ == "__main__":
     nodes = int(argv[1])
