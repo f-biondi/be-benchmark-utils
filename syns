@@ -2,12 +2,15 @@
 from sys import argv
 import math
 import os
+from tqdm import tqdm
 
 class Graph:
     def __init__(self, nodes, edges):
         self.nodes = nodes
         self.edges = edges
-        self.f = open("temp.txt", "w")
+        self.f = open("graph.txt", "w")
+        self.f.write(f"{nodes}\n")
+        self.f.write(f"{edges}\n")
 
     def add_directed_edge(self, start, end):
         self.f.write(f"{start} {end}\n")
@@ -18,11 +21,6 @@ class Graph:
 
     def save(self):
         self.f.close()
-        os.system(f"echo '{self.nodes}' > graph.txt")
-        os.system(f"echo '{self.edges}' >> graph.txt")
-        os.system("cat temp.txt | sort -S 80% -n | uniq >> graph.txt")
-        os.system("rm temp.txt")
-        #os.system("cat graph.txt | sort -n | uniq | > graph.txt")
 
 class SyntheticGraph(Graph):
     def __init__(self, nodes, stable_chain_size, unstable_chain_size, degree):
@@ -30,7 +28,9 @@ class SyntheticGraph(Graph):
         self.stable_chain_size = stable_chain_size
         self.unstable_chain_size = unstable_chain_size
         self.degree = degree
+        print("Unstable chain")
         unstable_chain = self.chain_intraconnected(0, unstable_chain_size, degree)
+        print("Stable chain")
         stable_chain = self.chain_intraconnected(unstable_chain_size * 4, stable_chain_size, degree)
 
         with open("partition.txt", "w") as f:
@@ -40,7 +40,7 @@ class SyntheticGraph(Graph):
                 f.write(f"{unstable_chain_size * 4}\n")
 
     def chain_intraconnected(self, start, size, degree):
-        for i in range(0, size*4,4):
+        for i in tqdm(range(0, size*4,4)):
             for k in range(degree):
                 dest_chain_start = ((i + (k*4)) % (size*4)) + start
                 self.add_undirected_edge(((i-3) % (size*4)) + start, dest_chain_start)
