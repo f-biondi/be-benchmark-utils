@@ -1,0 +1,68 @@
+#!/usr/bin/python3
+
+import os
+from sys import argv
+from glob import glob
+
+def download(dataset):
+    os.system(f"wget https://www.chrsmrrs.com/graphkerneldatasets/{dataset}.zip")
+    os.system(f"ls ./")
+    os.system(f"unzip {dataset}.zip")
+    os.system(f"ls ./")
+    os.system(f"ls ./{dataset}")
+    os.system(f"rm ./{dataset}.zip")
+    os.system(f"cp ./{dataset}/{dataset}_A.txt ./temp.txt")
+    os.system(f"mv ./{dataset}/{dataset}_A.txt temp.txt")
+    os.system(f"rm -rf ./{dataset}")
+    node_map = {}
+    last_id = 0
+
+    tsv = open("./temp.txt", "r")
+    lines = tsv.read().replace("\t", " ").split("\n")[:-1]
+    tsv.close()
+    nodes = 0
+    edges = 0
+
+    result = []
+    for l in lines:
+        edges += 1
+        l = l.split(', ')
+        node_start = int(l[0])
+        node_end = int(l[1])
+
+        start_id =0
+        if node_start not in node_map:
+            nodes += 1
+            node_map[node_start] = last_id
+            start_id = last_id
+            last_id+=1
+        else:
+            start_id = node_map[node_start]
+
+        end_id =0
+        if node_end not in node_map:
+            nodes += 1
+            node_map[node_end] = last_id
+            end_id = last_id
+            last_id+=1
+        else:
+            end_id = node_map[node_end]
+
+        result.append((start_id, end_id))
+
+    #result = sorted(result)
+    out = ""
+    out = out + f"{nodes}\n"
+    out = out + f"{edges}\n"
+    for l in result:
+        out = out + f"{l[0]} {l[1]}\n"
+    os.system("rm ./temp.txt")
+    f = open("./graph.txt","w")
+    f.write(out)
+    f.close()
+    f = open("./partition.txt","w")
+    f.write("0\n"*nodes)
+    f.close()
+
+
+download(argv[1])

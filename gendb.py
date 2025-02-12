@@ -5,18 +5,23 @@ os.system("rm sresult.db")
 con = sqlite3.connect("sresult.db")
 cur = con.cursor()
 
-cur.execute("CREATE TABLE IF NOT EXISTS results(name TEXT, nodes INT, p REAL, degree INT,  time REAL, result INT)")
+cur.execute("CREATE TABLE IF NOT EXISTS results(name TEXT, nodes INT, edges INT, time REAL, result INT)")
 
-dbs = {
-        "S_100_Thousand_": 100000,
-        "S_500_Thousand_": 500000,
-        "S_1_Million_": 1000000,
-        "S_5_Millions_": 5000000,
-        "S_10_Millions_": 10000000,
-}
+networks = [
+        "alchemy_full",
+        "aspirin",
+        "benzene",
+        "malonaldehyde",
+        "ethanol",
+        "OVCAR-8",
+        "OVCAR-8H",
+        "UACC257",
+        "ZINC_full",
+        "reddit_threads",
+        "twitch_egos",
 
-for k,v in dbs.items():
-    for p in [1, 0.75, 0.5, 0.25, 0]:
-        for degree in [10, 100]:
-            cur.execute("INSERT INTO results (name, nodes, p, degree, time, result) VALUES (?,?,?,?,?,?)", (f"{k}{int(100*p)}_{degree}", v, p, degree, -1, -1))
-            con.commit()
+]
+
+for name in networks:
+    cur.execute("INSERT INTO results (name, nodes, edges, time, result) VALUES (?,?,?,?,?)", (name, -1, -1, -1, -1))
+    con.commit()
