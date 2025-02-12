@@ -12,7 +12,7 @@ for r in result:
     #os.system(f"./syns {r['nodes']} {r['p']} {r['degree']}")
     os.system(f"./tunget {r['name']}")
 
-    os.system("timeout 10800 python berun.py")
+    os.system("timeout 10800 python3 berun.py")
     os.system("pkill java")
     try:
         f = open("res.txt", "r")
