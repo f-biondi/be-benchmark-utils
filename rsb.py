@@ -9,7 +9,9 @@ result = cur.fetchall()
 
 for r in result:
     print(dict(r))
-    os.system(f"./syns {r['nodes']} {r['p']} {r['degree']}")
+    #os.system(f"./syns {r['nodes']} {r['p']} {r['degree']}")
+    os.system(f"./tunget {r['name']}")
+
     os.system("timeout 10800 python berun.py")
     os.system("pkill java")
     try:
