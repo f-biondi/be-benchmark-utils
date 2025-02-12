@@ -26,7 +26,7 @@ def download(dataset):
     result = []
     for l in lines:
         edges += 1
-        l = l.split(', ')
+        l = l.split(',')
         node_start = int(l[0])
         node_end = int(l[1])
 
