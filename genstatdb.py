@@ -10,9 +10,6 @@ cur.execute("CREATE TABLE IF NOT EXISTS results(name TEXT, its INT, max INT, min
 networks = [
         "alchemy_full",
         "aspirin",
-        "benzene",
-        "malonaldehyde",
-        "ethanol",
         "OVCAR-8",
         "OVCAR-8H",
         "UACC257",
