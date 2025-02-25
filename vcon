@@ -1,0 +1,35 @@
+#!/usr/bin/python3
+import os
+from sys import argv
+
+os.system(f"./tunget {argv[1]}")
+#os.system(f"wget biondi.co/graph.txt")
+# <sizes>         ::= nr_states nr_labels nr_l_trans nr_w_trans nr_blocks
+lines = []
+with open("graph.txt") as f:
+    lines = f.read().split("\n")[:-1]
+
+with open("graph.txt", "w") as f:
+    nodes = int(lines[0])
+    edges = int(lines[1])
+    #f.write(f"{nodes} 1 {edges} {edges} 1\n")
+    f.write(f"{nodes} 0 0 {edges} 1\n")
+    #f.write(f"{nodes} 1 {edges} 0 1\n")
+
+    for edge in lines[2:]:
+        start, end = list(map(int,edge.split(" ")))
+        f.write(f"{start + 1} 1 {end + 1}\n")
+
+    """
+    for edge in lines[2:]:
+        start, end = list(map(int,edge.split(" ")))
+        f.write(f"{end + 1} 1 {start + 1}\n")
+    """
+
+    block = ""
+
+    for i in range(nodes):
+        block = block + f"{i+1} "
+
+    block = block + "0"
+    f.write(block)

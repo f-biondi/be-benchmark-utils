@@ -8,32 +8,19 @@ cur = con.cursor()
 cur.execute('select * from results where result = -1 order by nodes;')
 result = cur.fetchall()
 
-def adapt():
-    nodes = 0
-    lines = []
-    with open("graph.txt") as f:
-        lines = f.read().split("\n")[:-1]
-        nodes = int(lines[0])
-    with open("graph.txt", "w") as f:
-        f.write("\n".join(lines[2:]))
-    return nodes
-
 for r in result:
     print(dict(r))
     #os.system(f"./syns {r['nodes']} {r['p']} {r['degree']}")
-    os.system(f"./tunget {r['name']}")
-    nodes = adapt()
+    os.system(f"./vcon {r['name']}")
 
     start = datetime.now()
-    os.system(f"timeout 10800 java -jar epsBE.jar graph.txt {nodes} 0 0 1 res.txt")
+    os.system(f"timeout 10800 cat graph.txt | ./MDPmin.out > res.txt")
     end = datetime.now()
-    os.system("pkill java")
     try:
         f = open("res.txt", "r")
-        l = f.read().split("\n")
+        result = int(f.read().split("\n")[0].split(" ")[0])
         f.close()
         time = (end - start).total_seconds()
-        result = len(l[1].split(",")) 
         cur.execute("UPDATE results SET time = ?, result = ? where name= ?", (time, result, r['name']))
         con.commit()
         os.system("rm res.txt")
